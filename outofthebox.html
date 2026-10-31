@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>outofthebox – the daily football knowledge game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#f4fbf2;--gold:#ffd84a;--pink:#ff5fa2;--cy:#28d8ff;--navy:#050c1a;--px:"Press Start 2P",ui-monospace,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;height:100%;overflow:hidden;background:#070b1c;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1.35}
+img,canvas{image-rendering:pixelated}
+.scene{position:fixed;inset:0;overflow:hidden;background:#070b1c}
+.scene::after{content:"";position:absolute;inset:0;background:rgba(3,8,14,0);transition:background .5s;pointer-events:none;z-index:3}
+.scene.dim::after{background:rgba(3,8,14,.66)}
+.world{position:absolute;left:0;right:0;bottom:0;will-change:transform;--ov:repeating-linear-gradient(0deg,rgba(0,0,0,.45) 0 4px,transparent 4px 32px),linear-gradient(rgba(3,5,14,.42),rgba(3,5,14,.42))}
+.world>*{position:absolute}
+.crowd{background-color:#07080f;background-image:var(--ov),var(--a1),var(--a2);background-size:auto,48px 32px,48px 32px;background-position:0 0,0 0,24px 16px}
+.f1 .c1,.f2 .c2,.f3 .c3{background-image:var(--ov),var(--b1),var(--b2)}
+.fl{background:radial-gradient(circle 2px at 40px 30px,rgba(255,255,255,.8) 90%,transparent);background-size:190px 130px;animation:fk 5s steps(1) infinite;opacity:.5;pointer-events:none}
+@keyframes fk{0%{background-position:0 0}18%{background-position:70px 40px}36%{background-position:20px 80px}54%{background-position:120px 15px}72%{background-position:90px 95px}}
+.grass{left:50%;bottom:0;transform:translateX(-50%);background:var(--gt),repeating-linear-gradient(0deg,#1a6b30 0 var(--st),#167a37 var(--st) calc(var(--st)*2));background-size:18px 18px,auto}
+.ads{bottom:0;width:14px;filter:brightness(.62) saturate(.7);background:repeating-linear-gradient(0deg,#ff5fa2 0 28px,#ffd84a 28px 56px,#28d8ff 56px 84px,#58d68d 84px 112px,#af7ac5 112px 140px),#000}
+.hoard{left:50%;transform:translateX(-50%);height:8px;background:var(--gold)}
+.pitch{left:50%;transform:translateX(-50%);border:4px solid #f2f2f2}
+.pitch>*{position:absolute}
+.hl{left:0;right:0;top:50%;height:4px;margin-top:-2px;background:#f2f2f2}
+.cc{left:50%;top:50%;transform:translate(-50%,-50%)}
+.bx,.sx{border:4px solid #f2f2f2}.bx{left:20%;width:60%}.sx{left:36%;width:28%}
+.b{bottom:0;border-bottom:0!important}.t{top:0;border-top:0!important}
+.goal{left:40%;width:20%;height:26px;border:4px solid #fff;background:repeating-linear-gradient(45deg,transparent 0 4px,rgba(255,255,255,.35) 4px 6px)}
+.goal.b{bottom:-30px;border-bottom:4px solid #fff!important;border-top:0}.goal.t{top:-30px;border-top:4px solid #fff!important;border-bottom:0}
+.sky{left:0;right:0;top:0;background:radial-gradient(circle 2px at 20% 30%,#fff 90%,transparent),radial-gradient(circle 1.5px at 70% 15%,#fff 90%,transparent),radial-gradient(circle 2px at 45% 60%,#cfe 90%,transparent),radial-gradient(circle 1.5px at 85% 70%,#fff 90%,transparent),linear-gradient(#030512,#101a46);background-size:240px 220px,240px 220px,240px 220px,240px 220px,100% 100%}
+.glow{width:320px;height:320px;margin-bottom:-120px;background:radial-gradient(circle,rgba(255,244,190,.55),transparent 65%)}
+.dug{height:44px;border:4px solid rgba(255,255,255,.7);border-bottom:0;background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(255,255,255,.3) 10px 12px)}
+.mk{left:50%;transform:translateX(-50%);height:0;border-top:3px dashed rgba(255,255,255,.4)}
+.mk span{position:absolute;right:18px;bottom:6px;font-family:var(--px);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;background:rgba(5,12,26,.82);padding:3px 6px}
+.mk i{position:absolute;right:-6px;top:-8px;width:12px;height:12px;background:var(--c);border:2px solid #fff}
+.world.lnd .mk:not(.hit){opacity:.2}
+.mk.hit{border-top:4px solid var(--c)}
+.world.tv .mk{opacity:0}.mk.hit span{color:var(--c)}
+.bw{left:50%;width:0;height:0}
+.ball{position:absolute;left:-18px;bottom:-18px;width:36px;height:36px;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
+.ball.spin{animation:sp .6s steps(8) infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.tg{position:absolute;right:28px;bottom:10px;white-space:nowrap;max-width:62vw;overflow:hidden;text-overflow:ellipsis;font-family:var(--px);font-size:.6rem;text-transform:uppercase;background:#06101e;border:2px solid #cfe7ee;padding:6px 9px;transform:rotate(-7deg);transform-origin:right bottom;opacity:0;transition:opacity .3s}
+.tg.on{opacity:1}
+.pulse{position:absolute;left:-30px;bottom:-30px;width:60px;height:60px;border:4px solid var(--c);animation:pu .8s steps(6) forwards}
+@keyframes pu{from{transform:scale(.3);opacity:1}to{transform:scale(2.6);opacity:0}}
+.hud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 8px);display:flex;justify-content:space-between;align-items:flex-start;padding:0 14px;z-index:5;pointer-events:none;font-family:var(--px);transition:opacity .6s}
+.hb{background:rgba(5,12,26,.78);border:1px solid rgba(40,216,255,.22);padding:7px 11px;min-width:92px}
+.hb small{display:block;font-size:.45rem;color:#ff9a3d;letter-spacing:.14em;margin-bottom:5px}
+.hb b{font-size:.95rem;color:var(--cy)}.hb.r{text-align:right}.hb.r b{color:#ff9a3d}
+.logo{font-size:.6rem;margin-top:4px;padding:6px 9px;border:3px dotted var(--gold);background:rgba(5,12,26,.8);animation:bl 1.6s steps(1) infinite}
+@keyframes bl{0%{color:var(--gold);border-color:var(--gold)}50%{color:var(--pink);border-color:var(--pink)}}
+.ui{position:fixed;inset:0;z-index:4;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+.ui button,.ui input,.page{pointer-events:auto}
+.lab{font-family:var(--px);font-size:.58rem;color:#ff9a3d;letter-spacing:.16em;text-transform:uppercase}
+.qa{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 66px);display:flex;justify-content:center;padding:0 14px;transition:opacity .35s}
+.card{width:100%;max-width:440px;background:rgba(5,12,26,.95);border-radius:10px;padding:18px 20px 16px}
+.pq{font-size:clamp(1.3rem,5.4vw,1.8rem);font-weight:800;margin:14px 0 12px;line-height:1.2}
+.hint{font-size:.72rem;color:#8ea4b8}.hint::before{content:"\25BC  ";color:var(--cy)}
+.cd{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center}
+.cd span{background:rgba(5,12,26,.92);border-radius:20px;padding:8px 18px;font-size:.78rem;color:#b9c9d6}
+.inb{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;gap:12px;align-items:center;max-width:620px;margin:0 auto;padding:0 14px;transition:opacity .35s}
+.ringt{width:48px;height:48px;flex:none;border-radius:50%;background:var(--navy);border:3px solid var(--cy);display:grid;place-items:center;font-family:var(--px);font-size:.6rem;color:var(--cy)}
+.inw{flex:1;position:relative}
+input{width:100%;font:inherit;font-size:1.1rem;padding:14px 12px;background:var(--navy);border:2px solid rgba(40,216,255,.7);color:#fff;outline:none;border-radius:0}
+input::placeholder{color:#4d6076}
+.tb{position:absolute;left:0;right:0;bottom:-8px;height:3px;display:block}.tb b{display:block;height:100%;background:var(--cy);width:100%}
+.shk{animation:shk .35s}@keyframes shk{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.wr{position:absolute;left:62px;bottom:calc(100% + 8px);font-size:.78rem;color:#ffb27a;background:rgba(5,12,26,.92);padding:5px 10px;opacity:0;transition:opacity .25s;max-width:calc(100% - 76px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wr.on{opacity:1}
+button{font-family:var(--px);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--navy);border:3px solid var(--cy);padding:14px 20px;cursor:pointer;box-shadow:0 0 14px rgba(40,216,255,.35)}
+button:active{transform:translateY(2px)}
+button.shoot{background:#ff7a2f;border:0;color:#1a0a00;box-shadow:none;padding:16px 16px}
+.cta{display:block;width:100%;font-size:.95rem;padding:22px 12px;letter-spacing:.28em;text-align:center}
+.tt{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 11%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:0 14px;transition:opacity .4s}
+.ttl{font-family:var(--px);font-size:clamp(1.15rem,7vw,3.1rem);color:#fff;text-shadow:-3px 0 #28d8ff,3px 0 #ff7a2f,0 4px 0 #000;margin:0;letter-spacing:.02em}
+.sub{font-family:var(--px);font-size:.62rem;letter-spacing:.5em;color:#46b4e6;background:rgba(5,12,26,.82);padding:9px 8px 9px 16px}
+.tag{font-size:.78rem;color:#c9d6e2;background:rgba(5,12,26,.82);padding:6px 12px;max-width:94vw}
+.bot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 14px;transition:opacity .4s}
+.bot>*{width:100%;max-width:560px}
+.how{align-self:flex-start;width:auto!important;font-size:.55rem;padding:8px 12px;box-shadow:none;border-width:2px;background:rgba(5,12,26,.82);border-color:transparent;color:#9fb3c4}
+.gm{background:rgba(5,12,26,.8);color:#8ea4b8;font-size:.72rem;letter-spacing:.14em;padding:10px 12px;text-transform:uppercase}
+.hw{position:absolute;left:14px;right:14px;top:calc(env(safe-area-inset-top,0px) + 11%);max-width:560px;margin:0 auto;background:rgba(5,12,26,.96);border-radius:10px;padding:18px;pointer-events:auto;max-height:60%;overflow:auto}
+.lg{display:flex;justify-content:space-between;border-left:6px solid var(--c);padding:5px 10px;margin-top:4px;text-transform:uppercase;font-size:.78rem;background:rgba(255,255,255,.05)}
+.vd{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 70px);text-align:center;padding:0 16px;animation:fi .4s}
+.vd>div{margin:0 auto 8px}
+.zn{font-family:var(--px);font-size:clamp(1.2rem,6.5vw,2.3rem);text-transform:uppercase;text-shadow:0 0 18px currentColor,2px 2px 0 #000}
+.st{display:table;background:rgba(5,12,26,.88);padding:4px 14px}
+.va{font-size:1.2rem;font-weight:800}
+.vp{font-family:var(--px);font-size:.72rem;color:var(--cy)}
+.vf{font-size:.8rem;color:#c9d6e2}
+.nxt{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;padding:0 14px;animation:fi .4s}
+.nxt button{width:100%;max-width:340px;padding:18px 12px;letter-spacing:.2em}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page{position:absolute;inset:0;overflow-y:auto;padding:84px 16px 48px}
+.col{max-width:560px;margin:0 auto}
+.sec{display:flex;align-items:baseline;gap:12px;margin:22px 0 10px;font-family:var(--px);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#d5e8ee}
+.sec i{font-style:normal;font-family:ui-monospace,monospace;letter-spacing:.04em;text-transform:none;color:#8aa0a8;font-size:.72rem}
+.sec::after{content:"";flex:1;border-top:1px dashed rgba(40,216,255,.4);transform:translateY(-3px)}
+.rk{display:flex;justify-content:space-between;padding:12px 14px;background:rgba(5,12,26,.78);color:#7f93a3;text-transform:uppercase;font-size:.85rem;margin-bottom:3px}
+.rk.me{border:3px solid var(--cy);color:#fff;font-weight:800}
+.row{display:flex;gap:14px;align-items:center;padding:14px;background:rgba(5,12,26,.8);margin-bottom:3px}
+.dot{width:22px;height:22px;flex:none;border-radius:50%;border:2px solid rgba(255,255,255,.7)}
+.dot.off{background:#000;border-radius:0}
+.rb{flex:1;min-width:0}.rn{font-size:1.15rem;font-weight:800}
+.rm{font-size:.74rem;color:#8ea4b8;margin-top:3px}
+.rp{text-align:right;flex:none}.rp b{display:block;color:#ff9a3d;font-size:1.05rem}.rp span{font-size:.72rem;color:#8ea4b8}
+.bigs{font-family:var(--px);font-size:1.8rem;margin:2px 0}
+.grid{font-size:1.6rem;letter-spacing:2px;margin:8px 0 14px;background:rgba(5,12,26,.8);padding:8px 12px;display:inline-block}
+.tx{color:#e6f4e3;font-size:.85rem;margin-top:10px;background:rgba(5,12,26,.8);padding:4px 10px;display:none}
+
+.cta.alt{background:rgba(5,12,26,.82);border-color:rgba(40,216,255,.45);font-size:.7rem;padding:14px 12px;letter-spacing:.2em;box-shadow:none}
+.mn{font-size:.58rem;padding:10px 14px;box-shadow:none;border-width:2px}
+.mnb{position:sticky;top:-70px;z-index:2;margin:-6px 0 4px}
+.acts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="scene" id="sc"></div>
+<div class="hud" id="hud"><div class="hb"><small>DIST</small><b id="dist">0 m</b></div><div class="logo">outofthebox</div><div class="hb r"><small>SCORE</small><b id="scr">0</b></div></div>
+<div class="ui" id="ui"></div>
+<script>
+var D=[{"p":"Name a club that has won the Premier League","h":"Champions since 1992–93, including last season’s.","a":{"0":"Manchester United|man united|man utd|manchester utd|mufc,Manchester City|man city|mcfc","1":"Arsenal|afc arsenal|gunners,Chelsea|blues,Liverpool|lfc","4":"Leicester City|leicester|foxes","6":"Blackburn Rovers|blackburn|rovers"}},{"p":"Name a nation that has won the men’s European Championship","h":"Winners since 1960. Predecessor states count.","a":{"0":"Spain|espana,Germany|west germany|deutschland,France,Italy|italia","1":"Portugal,Netherlands|holland","3":"Denmark,Greece","5":"Czechoslovakia|czech republic|czechia","6":"Soviet Union|ussr|russia|cccp|soviet"}},{"p":"Name a country that has won the Copa América","h":"Any nation that has lifted the trophy.","a":{"0":"Argentina,Brazil,Uruguay","2":"Chile","4":"Paraguay,Colombia","5":"Peru","7":"Bolivia"}},{"p":"Name a stadium that has hosted a men’s World Cup final","h":"From Montevideo in 1930 to New Jersey in 2026.","a":{"0":"Wembley Stadium|wembley,Maracana|maracana stadium|estadio do maracana,Estadio Azteca|azteca|estadio banorte|banorte|estadio guillermo canedo,Stade de France,Olympiastadion Berlin|olympiastadion|berlin olympiastadion|berlin olympic stadium","1":"MetLife Stadium|metlife|new york new jersey stadium|new jersey stadium|giants stadium,Santiago Bernabeu|bernabeu|real madrid stadium|estadio santiago bernabeu,Stadio Olimpico|olimpico|rome olympic stadium,Luzhniki Stadium|luzhniki|luzhniki stadium moscow,Lusail Stadium|lusail|lusail iconic stadium,Rose Bowl|rose bowl stadium|pasadena","2":"Soccer City|fnb stadium|calabash|johannesburg stadium|first national bank stadium","3":"Olympiastadion Munich|munich olympic stadium|olympiastadion munchen|olympic stadium munich,Estadio Centenario|centenario,Estadio Monumental|monumental|el monumental|river plate stadium|estadio monumental antonio vespucio liberti","4":"International Stadium Yokohama|yokohama|nissan stadium|yokohama stadium|international stadium","5":"Wankdorf Stadium|wankdorf|wankdorfstadion,Rasunda Stadium|rasunda|rasunda stadion|solna stadium","6":"Estadio Nacional Santiago|estadio nacional|national stadium santiago|estadio nacional de chile|estadio nacional julio martinez","7":"Stade Olympique de Colombes|colombes|stade olympique|yves du manoir|stade olympique yves du manoir,Stadio Nazionale PNF|stadio nazionale|pnf stadium|stadio nazionale del partito nazionale fascista"}},{"p":"Name a stadium used by a Premier League club this season","h":"All 20 grounds in 2026–27. Sponsor names count.","a":{"0":"Old Trafford|theatre of dreams,Anfield,Stamford Bridge,Emirates Stadium|emirates|arsenal stadium|ashburton grove","1":"Etihad Stadium|etihad|city of manchester stadium|eastlands,St James’ Park|st james park|st james|st jamess park,Villa Park,Tottenham Hotspur Stadium|tottenham stadium|spurs stadium|new white hart lane","2":"Selhurst Park,Craven Cottage,City Ground|nottingham forest ground|forest ground,Elland Road","3":"Stadium of Light|sunderland stadium,Portman Road,Hill Dickinson Stadium|hill dickinson|bramley moore dock|bramley moore dock stadium|bramley moore|everton stadium","4":"Vitality Stadium|vitality|dean court|bournemouth stadium,American Express Stadium|amex stadium|amex|falmer stadium|falmer|american express community stadium|amex community stadium","5":"Gtech Community Stadium|gtech|g tech|g tech community stadium|brentford community stadium|brentford stadium|gtech stadium|community stadium,MKM Stadium|mkm|kc stadium|kcom stadium|hull stadium|kingston communications stadium","6":"Coventry Building Society Arena|coventry arena|cbs arena|ricoh arena|ricoh|coventry stadium|coventry building society|cov arena"}},{"p":"Name a country that has hosted the men’s European Championship","h":"Hosts and co-hosts, 1960 to 2024, including the 2020 spread.","a":{"0":"England,France,Germany|west germany|deutschland,Italy|italia","1":"Spain,Portugal,Netherlands|holland","2":"Belgium,Scotland,Sweden","3":"Austria,Switzerland,Poland,Ukraine,Denmark,Hungary","4":"Romania,Russia,Azerbaijan","6":"Yugoslavia"}},{"p":"Name a club that has won the UEFA Cup or Europa League","h":"Every winner since 1972, including this May’s.","a":{"0":"Sevilla|sevilla fc,Liverpool|lfc,Chelsea,Manchester United|man united|man utd|manchester utd|mufc,Tottenham Hotspur|tottenham|spurs","1":"Atletico Madrid|atletico|atleti,Juventus|juve,Inter Milan|inter|internazionale|inter milano,Porto|fc porto,Aston Villa|villa,Real Madrid","2":"Eintracht Frankfurt|frankfurt|eintracht,Villarreal|villarreal cf,Atalanta,Bayern Munich|bayern|bayern munchen,Ajax,Valencia,Zenit St Petersburg|zenit|zenit saint petersburg","3":"Borussia Monchengladbach|gladbach|monchengladbach|borussia mgladbach,Parma,Napoli|ssc napoli,Feyenoord,PSV Eindhoven|psv,Galatasaray,Shakhtar Donetsk|shakhtar,Bayer Leverkusen|leverkusen|bayer 04","4":"Anderlecht|rsc anderlecht,Schalke 04|schalke,Ipswich Town|ipswich","5":"IFK Goteborg|gothenburg|ifk gothenburg|goteborg,CSKA Moscow|cska"}},{"p":"Name a player who has scored in a men’s World Cup final","h":"Any goal in a final, 1930 to 2026. Shootouts don’t count.","a":{"0":"Zinedine Zidane|zidane,Kylian Mbappe|mbappe,Lionel Messi|messi,Pele|edson arantes do nascimento","1":"Geoff Hurst|hurst,Ronaldo|ronaldo nazario|r9|brazilian ronaldo,Andres Iniesta|iniesta,Mario Gotze|goetze|gotze,Antoine Griezmann|griezmann,Paul Pogba|pogba,Angel Di Maria|di maria|dimaria,Ferran Torres|torres","2":"Marco Tardelli|tardelli,Paolo Rossi|rossi,Gerd Muller|muller,Paul Breitner|breitner,Andreas Brehme|brehme,Emmanuel Petit|petit,Marco Materazzi|materazzi","3":"Mario Kempes|kempes,Johan Neeskens|neeskens,Jairzinho,Carlos Alberto|carlos alberto torres,Martin Peters|peters,Jorge Burruchaga|burruchaga,Jorge Valdano|valdano,Mario Mandzukic|mandzukic,Ivan Perisic|perisic","4":"Alessandro Altobelli|altobelli,Karl-Heinz Rummenigge|rummenigge,Rudi Voller|voller,Roberto Boninsegna|boninsegna,Gerson,Dick Nanninga|nanninga,Daniel Bertoni|bertoni,Wolfgang Weber|weber,Helmut Haller|haller,Jose Luis Brown|brown","5":"Alcides Ghiggia|ghiggia,Juan Schiaffino|schiaffino,Friaca,Helmut Rahn|rahn,Max Morlock|morlock,Ferenc Puskas|puskas,Zoltan Czibor|czibor,Vava,Mario Zagallo|zagallo,Nils Liedholm|liedholm,Agne Simonsson|simonsson,Amarildo,Zito,Josef Masopust|masopust","6":"Pedro Cea|cea,Hector Castro|castro,Pablo Dorado|dorado,Santos Iriarte|iriarte,Guillermo Stabile|stabile,Carlos Peucelle|peucelle,Raimundo Orsi|orsi,Angelo Schiavio|schiavio,Antonin Puc|puc,Gino Colaussi|colaussi,Silvio Piola|piola,Pal Titkos|titkos,Gyorgy Sarosi|sarosi"}},{"p":"Name a manager who has won the Champions League with two different clubs","h":"Won the European Cup or Champions League at two clubs.","a":{"0":"Carlo Ancelotti|ancelotti|carletto,Jose Mourinho|mourinho,Pep Guardiola|guardiola|pep","2":"Jupp Heynckes|heynckes,Luis Enrique|enrique","4":"Ottmar Hitzfeld|hitzfeld","5":"Ernst Happel|happel"}},{"p":"Name a club that has won the European Cup or Champions League","h":"All 24 clubs, up to PSG’s back-to-back.","a":{"0":"Real Madrid|madrid|real,Barcelona|barca|fc barcelona,Bayern Munich|bayern|bayern munchen,Liverpool|lfc,AC Milan|milan|ac milan,Manchester United|man united|man utd|manchester utd|mufc","1":"Chelsea,Manchester City|man city|mcfc,Inter Milan|inter|internazionale,Juventus|juve","2":"Paris Saint-Germain|psg|paris sg|paris saint germain|paris,Ajax,Borussia Dortmund|dortmund|bvb","3":"Benfica|sl benfica,Porto|fc porto","4":"Celtic,Nottingham Forest|forest|notts forest,Aston Villa|villa","5":"Feyenoord,PSV Eindhoven|psv|eindhoven,Marseille|olympique marseille|om,Hamburg|hamburger sv|hsv","6":"Steaua Bucharest|steaua|steaua bucuresti|fcsb,Red Star Belgrade|red star|crvena zvezda"}},{"p":"Name a club Zlatan Ibrahimović played for","h":"Any club in his senior career.","a":{"0":"Manchester United|man united|man utd|manchester utd|mufc,Paris Saint-Germain|psg|paris sg|paris saint germain,AC Milan|milan|ac milan","1":"Barcelona|barca|fc barcelona,Juventus|juve,Inter Milan|inter|internazionale","3":"Ajax,LA Galaxy|galaxy|los angeles galaxy","5":"Malmo FF|malmo|malmo ff"}},{"p":"Name a player who has won the Premier League Golden Boot","h":"Outright or shared, since 1992–93, up to last season.","a":{"0":"Thierry Henry|henry,Mohamed Salah|salah,Alan Shearer|shearer,Erling Haaland|haaland,Harry Kane|kane","1":"Luis Suarez|suarez,Sergio Aguero|aguero,Cristiano Ronaldo|ronaldo|cr7,Didier Drogba|drogba,Robin van Persie|van persie|rvp,Jamie Vardy|vardy,Son Heung-min|son|heung min son|sonny","2":"Ruud van Nistelrooy|van nistelrooy|nistelrooy,Sadio Mane|mane,Pierre-Emerick Aubameyang|aubameyang|auba,Carlos Tevez|tevez,Dimitar Berbatov|berbatov,Nicolas Anelka|anelka,Michael Owen|owen,Dwight Yorke|yorke,Jimmy Floyd Hasselbaink|hasselbaink|jimmy hasselbaink","3":"Andy Cole|cole|andrew cole,Teddy Sheringham|sheringham,Kevin Phillips|phillips,Dion Dublin|dublin"}},{"p":"Name a country that has won Olympic football gold","h":"Winners of the men’s tournament, 1900–2024.","a":{"0":"Brazil,Argentina,Spain","1":"Uruguay,Italy,France,Mexico","2":"Nigeria,Cameroon,Hungary,Great Britain|team gb|uk|united kingdom|england|britain","3":"Soviet Union|ussr|russia|cccp,Yugoslavia|serbia,Poland,Czechoslovakia|czech republic|czechia,Belgium,Sweden","4":"East Germany|gdr|ddr","5":"Canada"}}];
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\b(fc|cf|afc|the)\b/g," ").replace(/\s+/g," ").trim()}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var now=new Date(),key=now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
+var num=Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-Date.UTC(2026,9,30))/864e5)+1;
+var r=rng(num*7919+13),idx=D.map(function(_,i){return i});
+for(var i=idx.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=idx[i];idx[i]=idx[j];idx[j]=t}
+var Q=idx.slice(0,7).map(function(i){return D[i]});
+var ZN=["Reserves","Bench","Goal line","Out of the box","Halfway","Full field","In the stands","Out of the stadium"],
+ZC=["#d5e0da","#5dade2","#58d68d","#f4d03f","#eb984e","#ec7063","#af7ac5","#ffffff"],
+Z=[10,20,35,50,65,80,90,100],DM=[5,12,22,35,52,95,110,140],YF=[.6,1.6,2.5,3.4,4,5.5,6.5,7.5],
+ZE=["\u2B1C","\uD83D\uDFE6","\uD83D\uDFE9","\uD83D\uDFE8","\uD83D\uDFE7","\uD83D\uDFE5","\uD83D\uDFEA","\u2B50"],
+FL=["Everyone\u2019s first thought. Still counts.","Safe pick. Straight to the bench.","On the goal line. Solid.","Now you\u2019re thinking outside the box.","Halfway there. Nice touch.","That\u2019s a long ball. Full field.","Into the stands! Nobody saw that coming.","Out of the stadium! One in a million."],
+RK=[["Out of the box","600\u2013700",600],["Man of the match","500\u2013599",500],["Starting XI","350\u2013499",350],["Substitute","200\u2013349",200],["Reserves duty","0\u2013199",0]],
+STOP=["stadium","ground","park","road","lane","city","united","town","real","club","football","arena","community","national","olympic","cup","league"];
+function ed(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];for(j=1;j<=n;j++)d[0][j]=j;
+ for(i=1;i<=m;i++)for(j=1;j<=n;j++){d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1)}return d[m][n]}
+function amap(q){if(q._m)return q._m;var m={},lt={};
+ for(var k=0;k<8;k++){var s=q.a[k];if(!s)continue;
+  s.split(",").forEach(function(g,gi){var al=g.split("|"),nm=al[0];
+   al.forEach(function(a){var n=norm(a);if(n&&!m[n])m[n]={z:k,name:nm}});
+   var parts=norm(nm).split(" ");if(parts.length>1){var t=parts[parts.length-1];if(t.length>=4&&STOP.indexOf(t)<0){(lt[t]=lt[t]||{})[k+"-"+gi]=[k,nm]}}})}
+ Object.keys(lt).forEach(function(t){var ids=Object.keys(lt[t]);if(ids.length===1&&!m[t])m[t]={z:lt[t][ids[0]][0],name:lt[t][ids[0]][1]}});
+ return(q._m=m)}
+function grade(q,inp){var n=norm(inp);if(!n)return{z:-1,name:"",exact:false};var m=amap(q);
+ if(m[n])return{z:m[n].z,name:m[n].name,exact:true};
+ var best=null,bd=9;for(var key in m){var L=key.length;if(L>=5&&n.length>=4){var d=ed(n,key);if(d<=(L>=9?2:1)&&d<bd){bd=d;best=m[key]}}}
+ return best?{z:best.z,name:best.name,exact:false}:{z:-1,name:"",exact:false}}
+function rarest(q){for(var k=7;k>=0;k--){if(q.a[k])return q.a[k].split(",")[0].split("|")[0]}return""}
+function spr(w,h,fn){var c=document.createElement("canvas");c.width=w;c.height=h;fn(c.getContext("2d"));return c.toDataURL()}
+var SKN=["#f1c27d","#e0ac69","#c68642","#8d5524"],P1=["#9e2a2f","#d9d9d9","#7a1d22","#2b3352"],P2=["#c9ccd3","#8f2227","#1f2840","#5f6675"];
+function fanTile(pal,ph){return spr(24,16,function(x){[[0,1],[12,1],[6,9],[18,9]].forEach(function(p,k){var up=(k+ph)%4===0,ox=p[0],oy=p[1];
+ x.fillStyle=pal[k%4];x.fillRect(ox+1,oy+3,4,4);x.fillStyle=SKN[(k*3+ph)%4];x.fillRect(ox+2,oy,2,3);
+ if(up){x.fillRect(ox,oy,1,4);x.fillRect(ox+5,oy,1,4)}else{x.fillRect(ox,oy+4,1,2);x.fillRect(ox+5,oy+4,1,2)}})})}
+var BALL=spr(12,12,function(x){var P=[[0,-4],[4,-1.5],[2.5,3.5],[-2.5,3.5],[-4,-1.5]];
+ for(var j=0;j<12;j++)for(var i=0;i<12;i++){var dx=i-5.5,dy=j-5.5,r=Math.sqrt(dx*dx+dy*dy);if(r>6)continue;var c=r>5?"#111":"#fff";
+  if(r<=5){if(Math.abs(dx)+Math.abs(dy)<=2)c="#111";else{P.forEach(function(p){if((dx-p[0])*(dx-p[0])+(dy-p[1])*(dy-p[1])<=1.7)c="#111"});if(c==="#fff"&&dx+dy>3)c="#c3ced3"}}
+  x.fillStyle=c;x.fillRect(i,j,1,1)}}),
+RING=spr(48,48,function(x){x.fillStyle="#f2f2f2";for(var j=0;j<48;j++)for(var i=0;i<48;i++){var r=Math.sqrt((i-23.5)*(i-23.5)+(j-23.5)*(j-23.5));if(r<=24&&r>20.2)x.fillRect(i,j,1,1)}}),
+TEX=spr(6,6,function(x){x.fillStyle="rgba(0,0,0,.14)";[[1,1],[4,3],[2,5],[5,0]].forEach(function(p){x.fillRect(p[0],p[1],1,1)});x.fillStyle="rgba(255,255,255,.07)";[[3,2],[0,4]].forEach(function(p){x.fillRect(p[0],p[1],1,1)})});
+var QD=Q.slice(),VH=window.innerHeight,VW=window.innerWidth,BH=Math.max(240,VH*.34),W=Math.min(VW*.86,520),WH=7.5*BH+VH,START=.28*BH,TC=Math.max(0,5.5*BH-VH*.6),
+YM=YF.map(function(f){return f*BH}),
+sc=document.getElementById("sc"),ui=document.getElementById("ui"),hud=document.getElementById("hud"),distEl=document.getElementById("dist"),scrEl=document.getElementById("scr"),
+wd,bw,bl,tg,S={i:0,ans:[],left:25,tm:null,last:"",prac:false},SKY="ootb4:"+key;
+function px(n){return Math.round(n)+"px"}
+function load(){try{var v=localStorage.getItem(SKY);return v?JSON.parse(v):null}catch(e){return null}}
+function save(v){try{localStorage.setItem(SKY,JSON.stringify(v))}catch(e){}}
+function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function total(){return S.ans.reduce(function(a,b){return a+b.pts},0)}
+function legend(){return ZN.map(function(n,i){return '<div class="lg" style="--c:'+ZC[i]+'"><span>'+n+'</span><span>'+Z[i]+'</span></div>'}).join("")}
+function crowd(c,st){return '<div class="crowd '+c+'" style="'+st+'"></div><div class="fl" style="'+st+';animation-delay:-'+(c.charCodeAt(1)%3*1.4)+'s"></div>'}
+function buildScene(){var cw="max(0px,calc(50% - "+px(W/2+34)+"))",h='<div class="world" id="wd" style="height:'+px(WH)+';--st:'+px(BH*.28)+'">';
+ h+='<div class="sky" style="bottom:'+px(7*BH)+'"></div><div class="glow" style="left:-60px;bottom:'+px(7*BH)+'"></div><div class="glow" style="right:-60px;bottom:'+px(7*BH)+'"></div>';
+ h+=crowd("c1","left:0;width:"+cw+";bottom:0;height:"+px(7*BH))+crowd("c2","right:0;width:"+cw+";bottom:0;height:"+px(7*BH));
+ h+='<div class="ads" style="left:calc(50% - '+px(W/2+30)+');height:'+px(5.9*BH)+'"></div><div class="ads" style="right:calc(50% - '+px(W/2+30)+');height:'+px(5.9*BH)+'"></div>';
+ h+='<div class="grass" style="width:'+px(W+32)+';height:'+px(5.9*BH)+'"></div>'+crowd("c3","left:0;right:0;bottom:"+px(5.9*BH)+";height:"+px(1.1*BH))+'<div class="hoard" style="width:'+px(W+32)+';bottom:'+px(5.9*BH)+'"></div>';
+ h+='<div class="pitch" style="width:'+px(W)+';height:'+px(3*BH)+';bottom:'+px(2.5*BH)+'"><div class="hl"></div><img class="cc" src="'+RING+'" style="width:'+px(W*.34)+';height:'+px(W*.34)+'" alt="">';
+ ["b","t"].forEach(function(p){h+='<div class="bx '+p+'" style="height:'+px(.62*BH)+'"></div><div class="sx '+p+'" style="height:'+px(.22*BH)+'"></div><div class="goal '+p+'"></div>'});
+ h+='</div><div class="dug" style="left:calc(50% - '+px(W*.46)+');width:'+px(W*.26)+';bottom:'+px(1.25*BH)+'"></div><div class="dug" style="right:calc(50% - '+px(W*.46)+');width:'+px(W*.26)+';bottom:'+px(1.25*BH)+'"></div>';
+ ZN.forEach(function(n,i){h+='<div class="mk" id="mk'+i+'" style="width:'+px(W)+';bottom:'+px(YM[i])+';--c:'+ZC[i]+'"><i></i><span>'+n+' \u00B7 '+Z[i]+'</span></div>'});
+ h+='<div class="bw" id="bw" style="bottom:'+px(START)+'"><img class="ball" id="bl" src="'+BALL+'" alt=""><div class="tg" id="tg"></div></div></div>';
+ sc.innerHTML=h;wd=document.getElementById("wd");bw=document.getElementById("bw");bl=document.getElementById("bl");tg=document.getElementById("tg");
+ var st=wd.style;st.setProperty("--a1","url("+fanTile(P1,0)+")");st.setProperty("--b1","url("+fanTile(P1,1)+")");st.setProperty("--a2","url("+fanTile(P2,1)+")");st.setProperty("--b2","url("+fanTile(P2,0)+")");st.setProperty("--gt","url("+TEX+")");
+ [["f1",900],["f2",1250],["f3",1600]].forEach(function(p){setInterval(function(){wd.classList.toggle(p[0])},p[1])})}
+function camTo(y,dur){wd.style.transition=dur?"transform "+dur+"s cubic-bezier(.25,.1,.2,1)":"none";wd.style.transform="translateY("+Math.max(0,y-VH*.45)+"px)"}
+function resetCam(){wd.classList.remove("lnd");camTo(0,0);bw.style.transition="none";bw.style.bottom=px(START);bl.classList.remove("spin");tg.classList.remove("on");tg.textContent="";
+ [].forEach.call(document.querySelectorAll(".mk.hit,.pulse"),function(e){e.classList.contains("pulse")?e.remove():e.classList.remove("hit")});distEl.textContent="0 m";void wd.offsetHeight}
+function practiceSet(){var a=D.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a.slice(0,7)}
+function start(){resetCam();wd.classList.add("tv");wd.style.transform="translateY("+TC+"px)";showTitle()}
+function showTitle(){hud.style.opacity=0;sc.className="scene";S.prac=false;Q=QD;
+ var played=!!load(),d=new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).toUpperCase();
+ ui.innerHTML='<div class="tt" id="tt"><h1 class="ttl">OUTOFTHEBOX</h1><div class="logo" style="margin:0">outofthebox</div><div class="sub">FOOTBALL EDITION</div><div class="tag">7 prompts \u00B7 25 seconds each \u00B7 deeper answers fly further out</div></div>'+
+ '<div class="bot" id="bt"><button class="how" id="hw">\u25B6 How to play</button><button class="cta" id="go">'+(played?"\u25BC Today\u2019s results \u25BC":"\u25BC Kick off \u25BC")+'</button><button class="cta alt" id="pr">Practice round</button><div class="gm">Matchday #'+num+' \u00B7 '+d+'</div></div>';
+ document.getElementById("hw").onclick=function(){var h=document.getElementById("hwp");if(h){h.remove();return}
+  ui.insertAdjacentHTML("beforeend",'<div class="hw" id="hwp"><div class="lab">How to play</div><p>Type a valid answer to each prompt. Common answers stay with the reserves and bench; niche ones fly all the way out of the stadium. A near miss is autocorrected: press Enter again to lock it in. Wrong guess? Try again until the clock runs out. No answer at all is offside: zero.</p>'+legend()+'</div>')};
+ document.getElementById("go").onclick=function(){enter(played?"results":"daily")};
+ document.getElementById("pr").onclick=function(){enter("practice")}}
+function enter(mode){var h=document.getElementById("hwp");if(h)h.remove();document.getElementById("tt").style.opacity=0;document.getElementById("bt").style.opacity=0;
+ hud.style.opacity=1;wd.classList.remove("tv");wd.style.transition="transform 2.6s cubic-bezier(.5,0,.2,1)";wd.style.transform="translateY(0)";
+ setTimeout(function(){
+  if(mode==="results"){S.prac=false;Q=QD;S.ans=load();scrEl.textContent=total();results()}
+  else{S.prac=mode==="practice";Q=S.prac?practiceSet():QD;S.i=0;S.ans=[];scrEl.textContent="0";ask()}},2500)}
+function toMenu(){var pg=ui.firstChild;if(pg){pg.style.transition="opacity .4s";pg.style.opacity=0}hud.style.opacity=0;sc.className="scene";wd.classList.add("tv");
+ wd.style.transition="transform 2.4s cubic-bezier(.5,0,.2,1)";wd.style.transform="translateY("+TC+"px)";setTimeout(showTitle,2000)}
+function ask(){var q=Q[S.i];resetCam();S.last="";
+ ui.innerHTML='<div class="qa" id="qa"><div class="card"><div class="lab">'+(S.prac?"Practice \u00B7 ":"")+'Prompt '+(S.i+1)+' of 7</div><div class="pq">'+esc(q.p)+'</div><div class="hint">'+esc(q.h||"")+'</div></div></div><div id="ib"></div>';
+ function begin(){var cd=document.getElementById("cd");if(cd)cd.remove();S.left=25;
+  document.getElementById("ib").innerHTML='<div class="inb" id="inb"><div class="wr" id="wr"></div><div class="ringt" id="tl">25</div><div class="inw" id="iw"><input id="in" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="type one answer\u2026"><i class="tb"><b id="bf"></b></i></div><button class="shoot" id="sub">Shoot</button></div>';
+  var inp=document.getElementById("in"),wr=document.getElementById("wr"),iw=document.getElementById("iw"),done=false;inp.focus();
+  function msg(t){wr.textContent=t;wr.classList.add("on");iw.classList.remove("shk");void iw.offsetWidth;iw.classList.add("shk");clearTimeout(S.wt);S.wt=setTimeout(function(){wr.classList.remove("on")},2800)}
+  function finish(v,g){done=true;clearInterval(S.tm);S.ans.push({a:v,z:g.z,pts:g.z>=0?Z[g.z]:0,name:g.name});reveal()}
+  function submit(){if(done)return;var v=inp.value.trim();if(!v){msg("Type an answer first");return}var g=grade(q,v);
+   if(g.z<0){S.last=v;msg("\u201C"+(v.length>22?v.slice(0,22)+"\u2026":v)+"\u201D isn\u2019t right \u2014 try another");inp.value="";inp.focus();return}
+   if(!g.exact){inp.value=g.name;inp.focus();msg("Autocorrected \u2014 press Enter to lock it in");return}
+   finish(v,g)}
+  document.getElementById("sub").onclick=submit;inp.onkeydown=function(e){if(e.key==="Enter")submit()};
+  clearInterval(S.tm);S.tm=setInterval(function(){S.left-=.25;var f=document.getElementById("bf"),tl=document.getElementById("tl");if(!f)return;f.style.width=(S.left/25*100)+"%";tl.textContent=Math.ceil(S.left);
+   if(S.left<=0&&!done){var v=inp.value.trim()||S.last;finish(v,v?grade(q,v):{z:-1,name:""})}},250)}
+ if(S.i===0){var n=3;ui.insertAdjacentHTML("beforeend",'<div class="cd" id="cd"><span>get set \u00B7 the clock starts in 3</span></div>');var c=document.querySelector("#cd span");
+  var iv=setInterval(function(){n--;if(n<=0){clearInterval(iv);begin()}else c.textContent="get set \u00B7 the clock starts in "+n},1000)}
+ else begin()}
+function reveal(){var a=S.ans[S.ans.length-1],z=a.z,last=S.ans.length===7,qa=document.getElementById("qa"),ib=document.getElementById("inb");
+ if(qa)qa.style.opacity=0;if(ib)ib.style.opacity=0;
+ setTimeout(function(){ui.innerHTML="";var txt=a.a||"no answer";
+  if(z<0){tg.textContent="\u2715 "+txt;tg.classList.add("on");setTimeout(function(){verdict(a,last)},900);return}
+  var dur=1.3+z*.3;tg.textContent="\u201C"+txt+"\u201D \u25BC";tg.classList.add("on");bl.classList.add("spin");
+  setTimeout(function(){bw.style.transition="bottom "+dur+"s cubic-bezier(.25,.1,.2,1)";bw.style.bottom=px(YM[z]);camTo(YM[z],dur);
+   var t0=performance.now();(function tick(t){var p=Math.min(1,(t-t0)/(dur*1000));distEl.textContent=Math.round(DM[z]*(1-Math.pow(1-p,2.2)))+" m";
+    if(p<1)requestAnimationFrame(tick);else land(a,last)})(t0)},350)},380)}
+function land(a,last){var z=a.z,pu=document.createElement("div");bl.classList.remove("spin");document.getElementById("mk"+z).classList.add("hit");wd.classList.add("lnd");
+ pu.className="pulse";pu.style.setProperty("--c",ZC[z]);bw.appendChild(pu);scrEl.textContent=total();setTimeout(function(){verdict(a,last)},550)}
+function verdict(a,last){var z=a.z,off=z<0;
+ ui.innerHTML='<div class="vd"><div class="zn" style="color:'+(off?"#ff7a6b":ZC[z])+'">'+(off?"Offside":ZN[z])+'</div><div class="st va">'+(a.a?"\u201C"+esc(a.a)+"\u201D":"(no answer)")+'</div><div class="st vp">'+(off?"+0 PTS":"+"+a.pts+" PTS \u00B7 "+DM[z]+" m")+'</div><div class="st vf">'+(off?"The flag\u2019s up. No score.":FL[z])+'</div></div><div class="nxt"><button id="nx">'+(last?"Full time":"Next kick")+' \u25BC</button></div>';
+ var nx=document.getElementById("nx");nx.onclick=function(){if(last){if(!S.prac)save(S.ans);results()}else{S.i++;ask()}};nx.focus()}
+function results(){resetCam();sc.className="scene dim";hud.style.opacity=1;var tot=total(),
+ grid=S.ans.map(function(a){return a.z<0?"\u2B1B":ZE[a.z]}).join(""),cur=RK.filter(function(r){return tot>=r[2]})[0],share="outofthebox "+(S.prac?"practice":"#"+num)+"\n"+tot+"/700 \u2013 "+cur[0]+"\n"+grid;
+ var h='<div class="page"><div class="col"><div class="mnb"><button class="mn" id="mn1">\u25C0 Menu</button></div><div class="sec">Full time<i>'+(S.prac?"practice round":"matchday #"+num)+'</i></div><div class="bigs">'+tot+'<span style="font-size:1rem;color:#8ea4b8">/700</span></div><div style="height:10px"></div>';
+ RK.forEach(function(r){h+='<div class="rk'+(r===cur?" me":"")+'"><span>'+r[0]+'</span><span>'+r[1]+' pts</span></div>'});
+ h+='<div class="sec">Your haul<i>every answer, in order</i></div>';
+ S.ans.forEach(function(a,i){var q=Q[i];h+='<div class="row"><i class="dot'+(a.z<0?" off":"")+'" style="background:'+(a.z>=0?ZC[a.z]:"#000")+'"></i><div class="rb"><div class="rn">'+(a.a?esc(a.a):"(no answer)")+'</div><div class="rm">'+(i+1)+'. '+esc(q.p)+' \u00B7 '+(a.z>=0?ZN[a.z]:"Offside")+'</div><div class="rm">Furthest on our list: '+esc(rarest(q))+'</div></div><div class="rp"><b>+'+a.pts+'</b><span>'+(a.z>=0?DM[a.z]:0)+' m</span></div></div>'});
+ h+='<div class="sec">Share</div><div class="grid">'+grid+'</div><div class="acts"><button class="cta" id="cp">Copy result</button><button class="cta alt" id="mn2">\u25C0 Back to menu</button></div><div class="tx" id="msg"></div></div></div>';
+ ui.innerHTML=h;
+ document.getElementById("mn1").onclick=toMenu;document.getElementById("mn2").onclick=toMenu;
+ document.getElementById("cp").onclick=function(){var m=document.getElementById("msg");m.style.display="inline-block";try{navigator.clipboard.writeText(share).then(function(){m.textContent="Copied. Paste it in the group chat."},function(){m.textContent=share})}catch(e){m.textContent=share}}}
+buildScene();start();
+</script>
+</body>
+</html>
